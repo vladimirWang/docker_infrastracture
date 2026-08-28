@@ -76,4 +76,4 @@ networks:
     driver: bridge
   mac_docker_network:
     name: mac_docker_network
-    external: true
+    driver: bridge
