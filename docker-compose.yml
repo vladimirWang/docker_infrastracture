@@ -1,9 +1,8 @@
 services:
   postgres:
     image: pgvector/pgvector:pg17
-    container_name: shared-postgres
     ports:
-      - "5432:5432"
+      - "15432:5432"
     environment:
       POSTGRES_USER: "${DATABASE_USER}"
       POSTGRES_PASSWORD: "${DATABASE_PASSWORD}"
@@ -23,10 +22,58 @@ services:
       retries: 30
       start_period: 20s
 
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    volumes:
+      - shared_mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'mysqladmin ping -h 127.0.0.1 -p"$$MYSQL_ROOT_PASSWORD" >/dev/null',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    networks:
+      - mac_docker_network
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "16379:6379"
+    volumes:
+      - shared_redis_data:/data
+    command:
+      ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    networks:
+      - mac_docker_network
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    environment:
+      RABBITMQ_DEFAULT_USER: "root"
+      RABBITMQ_DEFAULT_PASS: "1234"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - mq-plugins:/plugins
+    networks:
+      - mac_docker_network
 volumes:
   shared_postgres_data:
+  shared_mysql_data:
+  shared_redis_data:
+  mq-plugins:
 
 networks:
   private_chef_network:
     name: private_chef_network
     driver: bridge
+  mac_docker_network:
+    name: mac_docker_network
+    external: true
