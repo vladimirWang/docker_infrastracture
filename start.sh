@@ -1,0 +1,1 @@
+docker compose -p docker-infrastracture -f docker-compose.yml up -d --build
