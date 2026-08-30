@@ -49,7 +49,7 @@ services:
     volumes:
       - shared_redis_data:/data
     command:
-      ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+      ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--protected-mode", "no"]
     networks:
       - mac_docker_network
   rabbitmq:
