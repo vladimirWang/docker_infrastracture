@@ -43,7 +43,7 @@ services:
     networks:
       - mac_docker_network
   redis:
-    image: redis:7.0-alpine
+    image: redis:7.2.11-alpine
     ports:
       - "16379:6379"
     volumes:
@@ -65,11 +65,39 @@ services:
       - mq-plugins:/plugins
     networks:
       - mac_docker_network
+  # mongodb:
+  #   image: mongo:6.0
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   networks:
+  #     - mac_docker_network
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - mac_docker_network
+    environment:
+      CLICKHOUSE_SERVER_LOG_LEVEL: "info"
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      ALLOW_EMPTY_PASSWORD: "yes"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    restart: always
 volumes:
   shared_postgres_data:
   shared_mysql_data:
+  # mongo_data:
   shared_redis_data:
   mq-plugins:
+  clickhouse_data:
 
 networks:
   private_chef_network:
