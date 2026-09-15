@@ -73,24 +73,24 @@ services:
   #     - mongo_data:/data/db
   #   networks:
   #     - mac_docker_network
-  clickhouse:
-    image: clickhouse/clickhouse-server:24.8
-    ports:
-      - "9000:9000"
-      - "8123:8123"
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-    networks:
-      - mac_docker_network
-    environment:
-      CLICKHOUSE_SERVER_LOG_LEVEL: "info"
-      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
-      ALLOW_EMPTY_PASSWORD: "yes"
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    restart: always
+  # clickhouse:
+  #   image: clickhouse/clickhouse-server:24.8
+  #   ports:
+  #     - "9000:9000"
+  #     - "8123:8123"
+  #   volumes:
+  #     - clickhouse_data:/var/lib/clickhouse
+  #   networks:
+  #     - mac_docker_network
+  #   environment:
+  #     CLICKHOUSE_SERVER_LOG_LEVEL: "info"
+  #     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+  #     ALLOW_EMPTY_PASSWORD: "yes"
+  #   ulimits:
+  #     nofile:
+  #       soft: 262144
+  #       hard: 262144
+  #   restart: always
 volumes:
   shared_postgres_data:
   shared_mysql_data:
