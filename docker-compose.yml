@@ -24,6 +24,7 @@ services:
 
   mysql:
     image: mysql:8.0
+    restart: unless-stopped
     ports:
       - "13306:3306"
     environment:
@@ -44,6 +45,7 @@ services:
       - mac_docker_network
   redis:
     image: redis:7.2.11-alpine
+    restart: unless-stopped
     ports:
       - "16379:6379"
     volumes:
@@ -54,6 +56,7 @@ services:
       - mac_docker_network
   rabbitmq:
     image: rabbitmq:3.8-management
+    restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "root"
       RABBITMQ_DEFAULT_PASS: "1234"
