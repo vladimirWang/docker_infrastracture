@@ -22,9 +22,22 @@ services:
   #     retries: 30
   #     start_period: 20s
 
+  # 2C2G 机器：每个容器封顶内存 + 日志轮转，单容器超限重启而不是整机 OOM
   mysql:
     image: mysql:8.0
     restart: unless-stopped
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    # MySQL 8.0 默认参数在小内存机器上占用过高，显式调小
+    command:
+      - --innodb-buffer-pool-size=192M
+      - --max-connections=60
+      - --table-open-cache=400
+      - --performance-schema=OFF
     ports:
       - "13306:3306"
     environment:
@@ -46,17 +59,41 @@ services:
   redis:
     image: redis:7.2.11-alpine
     restart: unless-stopped
+    mem_limit: 96m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "16379:6379"
     volumes:
       - shared_redis_data:/data
     command:
-      ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--protected-mode", "no"]
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "everysec",
+        "--protected-mode",
+        "no",
+        "--maxmemory",
+        "64mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+      ]
     networks:
       - mac_docker_network
   rabbitmq:
     image: rabbitmq:3.8-management
     restart: unless-stopped
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
     environment:
       RABBITMQ_DEFAULT_USER: "root"
       RABBITMQ_DEFAULT_PASS: "1234"
