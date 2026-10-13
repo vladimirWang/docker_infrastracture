@@ -122,6 +122,49 @@ services:
       - mq-plugins:/plugins
     networks:
       - infra_network
+  # etcd：go-zero 服务注册/发现（sso-login 的 auth-rpc/auth-api 依赖）
+  # 用阿里云 ACR 上的 k8s 官方 etcd 镜像镜像源（Docker Hub 第三方 namespace 在国内拉取不稳）
+  etcd:
+    image: registry.cn-hangzhou.aliyuncs.com/google_containers/etcd:3.5.21-0
+    restart: unless-stopped
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # 该镜像 ENTRYPOINT/CMD 均为空，command 必须用绝对路径
+    command:
+      - /usr/local/bin/etcd
+      - --name=etcd
+      - --data-dir=/var/lib/etcd
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --advertise-client-urls=http://etcd:2379
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --initial-advertise-peer-urls=http://etcd:2380
+      - --initial-cluster=etcd=http://etcd:2380
+      - --initial-cluster-token=etcd-cluster
+      - --initial-cluster-state=new
+    # 仅绑宿主机 loopback 供调试，不对公网暴露（容器间走 infra_network 服务名）
+    ports:
+      - "127.0.0.1:2379:2379"
+    volumes:
+      - shared_etcd_data:/var/lib/etcd
+    healthcheck:
+      # 镜像无 shell，必须用 exec 形式（不能用 CMD-SHELL）
+      test:
+        - CMD
+        - /usr/local/bin/etcdctl
+        - --endpoints=http://127.0.0.1:2379
+        - endpoint
+        - health
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    networks:
+      - infra_network
+
   # mongodb:
   #   image: mongo:6.0
   #   ports:
@@ -153,6 +196,7 @@ volumes:
   shared_mysql_data:
   # mongo_data:
   shared_redis_data:
+  shared_etcd_data:
   mq-plugins:
   # clickhouse_data:
 
