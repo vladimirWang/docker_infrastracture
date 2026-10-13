@@ -57,7 +57,7 @@ services:
     networks:
       - infra_network
   redis:
-    image: redis:7.2-alpine
+    image: redis:7.2.16-alpine
     restart: unless-stopped
     mem_limit: 96m
     logging:
