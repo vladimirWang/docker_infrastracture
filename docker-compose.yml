@@ -55,7 +55,7 @@ services:
       retries: 30
       start_period: 40s
     networks:
-      - mac_docker_network
+      - infra_network
   redis:
     image: redis:7.2.11-alpine
     restart: unless-stopped
@@ -84,7 +84,7 @@ services:
         "allkeys-lru",
       ]
     networks:
-      - mac_docker_network
+      - infra_network
   rabbitmq:
     image: rabbitmq:3.8-management
     restart: unless-stopped
@@ -104,7 +104,7 @@ services:
     volumes:
       - mq-plugins:/plugins
     networks:
-      - mac_docker_network
+      - infra_network
   # mongodb:
   #   image: mongo:6.0
   #   ports:
@@ -112,7 +112,7 @@ services:
   #   volumes:
   #     - mongo_data:/data/db
   #   networks:
-  #     - mac_docker_network
+  #     - infra_network
   # clickhouse:
   #   image: clickhouse/clickhouse-server:24.8
   #   ports:
@@ -121,7 +121,7 @@ services:
   #   volumes:
   #     - clickhouse_data:/var/lib/clickhouse
   #   networks:
-  #     - mac_docker_network
+  #     - infra_network
   #   environment:
   #     CLICKHOUSE_SERVER_LOG_LEVEL: "info"
   #     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
@@ -143,6 +143,6 @@ networks:
   private_chef_network:
     name: private_chef_network
     driver: bridge
-  mac_docker_network:
-    name: mac_docker_network
+  infra_network:
+    name: infra_network
     driver: bridge
