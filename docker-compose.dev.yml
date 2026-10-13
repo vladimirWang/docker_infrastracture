@@ -8,7 +8,21 @@
 
 services:
   postgres:
-    image: pgvector/pgvector:pg17-bookworm
+    # 用官方 postgres 镜像（library/postgres，阿里云 mirror 支持），不依赖 pgvector/pgvector 个人 namespace
+    # pgvector 扩展在 entrypoint 阶段通过 apt 装入（PGDG apt 源在镜像里已启用）
+    image: postgres:17-bookworm
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        if [ ! -f /usr/share/postgresql/17/extension/vector.control ]; then
+          echo "==> Installing pgvector via apt..."
+          apt-get update
+          apt-get install -y --no-install-recommends postgresql-17-pgvector
+          rm -rf /var/lib/apt/lists/*
+        fi
+        exec docker-entrypoint.sh postgres
     ports:
       - "15432:5432"
     environment:
@@ -17,6 +31,7 @@ services:
       POSTGRES_DB: "${DATABASE_NAME}"
     volumes:
       - shared_postgres_data:/var/lib/postgresql/data
+      - ./init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql:ro
     networks:
       - private_chef_network
 

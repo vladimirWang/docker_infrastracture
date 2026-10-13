@@ -15,8 +15,9 @@ mkdir -p "$OUTPUT_DIR"
 
 echo "==> 复制部署文件..."
 cp docker-compose.yml "$OUTPUT_DIR/"
-cp .env            "$OUTPUT_DIR/"
-cp up.sh           "$OUTPUT_DIR/"
+cp .env              "$OUTPUT_DIR/"
+cp up.sh             "$OUTPUT_DIR/"
+cp init-pgvector.sql "$OUTPUT_DIR/"
 chmod +x "$OUTPUT_DIR/up.sh"
 
 echo "==> 打包..."
